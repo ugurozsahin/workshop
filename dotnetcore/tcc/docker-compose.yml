@@ -1,0 +1,29 @@
+version: '3'
+
+services:
+  web:
+    image: web
+    build:
+      context: ./Web
+      dockerfile: Dockerfile
+    depends_on:
+      - tcc-mysql
+      - tcc-redis
+
+  tcc-mysql:
+    image: mysql:latest
+    container_name: "tcc-mysql"
+    restart: always
+    environment:
+      MYSQL_DATABASE: Content
+      MYSQL_USER: demo
+      MYSQL_PASSWORD: demo
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - 3306
+
+  tcc-redis:
+    image: redis:alpine
+    container_name: "tcc-redis"
+    ports:
+      - 6379
