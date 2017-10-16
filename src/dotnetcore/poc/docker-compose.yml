@@ -1,0 +1,130 @@
+version: '3'
+
+services:
+  web:
+    image: web
+    build:
+      context: ./Web
+      dockerfile: Dockerfile
+    depends_on:
+      - poc-es1
+#      - poc-es2
+      - poc-mysql
+      - poc-redis
+      - poc-mongo
+      - poc-rabbitmq
+#      - poc-mssql
+
+  poc-consumer:
+    image: poc-consumer
+    build:
+      context: ./ConsumerApp
+      dockerfile: Dockerfile
+    depends_on:
+      - poc-es1
+#      - poc-es2
+      - poc-mysql
+      - poc-redis
+      - poc-mongo
+      - poc-rabbitmq
+
+  poc-es1:
+    image: docker.elastic.co/elasticsearch/elasticsearch:5.6.3
+    container_name: poc-es1
+    environment:
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+#    volumes:
+#      - esdata1:/usr/share/elasticsearch/data
+    ports:
+      - 9200
+#    networks:
+#      - esnet
+
+#  poc-es2:
+#    image: docker.elastic.co/elasticsearch/elasticsearch:5.6.3
+#    container_name: "poc-es2"
+#    environment:
+#      - cluster.name=docker-cluster
+#      - bootstrap.memory_lock=true
+#      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+#      - "discovery.zen.ping.unicast.hosts=poc-es1"
+#    ulimits:
+#      memlock:
+#        soft: -1
+#        hard: -1
+##    volumes:
+##      - esdata2:/usr/share/elasticsearch/data
+##    networks:
+##      - esnet
+
+  poc-mysql:
+    image: mysql:latest
+    container_name: "poc-mysql"
+    restart: always
+    environment:
+      MYSQL_DATABASE: Content
+      MYSQL_USER: demo
+      MYSQL_PASSWORD: demo
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - 3306
+
+  poc-redis:
+    image: redis:alpine
+    container_name: "poc-redis"
+    ports:
+      - 6379
+
+  poc-mongo:
+    image: mongo:latest
+    container_name: "poc-mongo"
+    environment:
+      MONGO_DATA_DIR: /data/db
+      MONGO_LOG_DIR: /dev/null
+#    volumes:
+#      - ./data/db:/data/db
+    ports:
+      - 27017
+    command: mongod --smallfiles --logpath=/dev/null # --quiet
+
+  #sqlservr: This program requires a machine with at least 3250 megabytes of memory.
+#  poc-mssql:
+#    image: "microsoft/mssql-server-linux"
+#    environment:
+#      SA_PASSWORD: "demo"
+#      ACCEPT_EULA: "Y"
+#    ports:
+#      - 1433:1433
+
+  poc-rabbitmq:
+    image: rabbitmq:3-management
+    container_name: "poc-rabbitmq"
+    environment: 
+      RABBITMQ_DEFAULT_USER: demo
+      RABBITMQ_DEFAULT_PASS: demo
+      RABBITMQ_DEFAULT_VHOST: my_vhost
+    ports:
+      - 5672
+      - 15672:15672
+
+#  poc-adminer:
+#    image: adminer
+#    container_name: "poc-adminer"
+#    restart: always
+#    ports:
+#      - 18080:8080
+
+#volumes:
+#  esdata1:
+#    driver: local
+#  esdata2:
+#    driver: local
+#
+#networks:
+#  esnet:

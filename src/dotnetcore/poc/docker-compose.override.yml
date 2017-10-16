@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  web:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "80"
+
+  poc-consumer:
+    environment:
+      - NETCORE_ENVIRONMENT=Development
