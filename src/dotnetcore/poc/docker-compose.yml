@@ -6,6 +6,8 @@ services:
     build:
       context: ./Web
       dockerfile: Dockerfile
+    ports:
+      - 10001:80
     depends_on:
       - poc-es1
 #      - poc-es2
@@ -13,6 +15,7 @@ services:
       - poc-redis
       - poc-mongo
       - poc-rabbitmq
+#      - poc-cassandra-seed-node
 #      - poc-mssql
 
   poc-consumer:
@@ -119,6 +122,33 @@ services:
 #    restart: always
 #    ports:
 #      - 18080:8080
+
+################################
+#  poc-cassandra-seed-node:
+#    container_name: poc-cassandra-seed-node
+#    image: cassandra:latest
+#    ports:
+#      - 9042:9042   # Native transport
+#      - 7199:7199   # JMX
+#      - 9160:9160   # Thrift clients
+##    volumes: # uncomment if you desire mounts, also uncomment cluster.sh
+##      - ./data/cassandra-1:/var/lib/cassandra:rw
+#
+################################
+#  poc-cassandra-node-1:
+#    container_name: poc-cassandra-node-1
+#    image: cassandra:latest
+#    command: /bin/bash -c "echo 'Waiting for seed node' && sleep 80 && /docker-entrypoint.sh cassandra -f"
+#    environment:
+#      CASSANDRA_SEEDS: poc-cassandra-seed-node
+#    depends_on:
+#      - "poc-cassandra-seed-node"
+##    links:
+##      - poc-cassandra0:seed
+##    environment:
+##      CASSANDRA_SEEDS: seed
+##    volumes: # uncomment if you desire mounts, also uncomment cluster.sh
+##      - ./data/cassandra-1:/var/lib/cassandra:rw
 
 #volumes:
 #  esdata1:

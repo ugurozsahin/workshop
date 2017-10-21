@@ -26,9 +26,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Core\Core.csproj" />
-    <ProjectReference Include="..\Data\Data.csproj" />
-    <ProjectReference Include="..\Entity\Entity.csproj" />
+    <ProjectReference Include="..\..\common\Core\Core.csproj" />
+    <ProjectReference Include="..\..\common\poc\Data\Data.csproj" />
+    <ProjectReference Include="..\..\common\poc\Entity\Entity.csproj" />
   </ItemGroup>
 
 </Project>
