@@ -11,10 +11,22 @@ namespace Web
 {
     public class Program
     {
+        public static IWebHost BuildWebHost(string[] args) =>
+            WebHost.CreateDefaultBuilder(args)
+                .UseStartup<Startup>()
+                .Build();
+
         public static void Main(string[] args)
         {
             var host = BuildWebHost(args);
 
+            InitializeApplication(host);
+
+            host.Run();
+        }
+
+        private static void InitializeApplication(IWebHost host)
+        {
             using (var scope = host.Services.CreateScope())
             {
                 var services = scope.ServiceProvider;
@@ -36,13 +48,6 @@ namespace Web
                     logger.LogError(ex, "An error occurred while seeding the database.");
                 }
             }
-
-            host.Run();
         }
-
-        public static IWebHost BuildWebHost(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>()
-                .Build();
     }
 }
