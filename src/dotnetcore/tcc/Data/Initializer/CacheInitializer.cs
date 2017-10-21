@@ -3,7 +3,6 @@ using Core.Constants;
 using Core.Data;
 using Entity;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Data.Initializer
 {
@@ -21,14 +20,15 @@ namespace Data.Initializer
 
         public void Initialize()
         {
-            Task.Run(_repository.GetAllAsync).ContinueWith(task =>
+            var allProducts = _repository.GetAllAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+            if (allProducts?.Any() == true)
             {
-                if (task.Result?.Any() == true)
-                {
-                    var allProducts = task.Result.ToDictionary(item => item.Id);
-                    Task.Run(() => _cacher.SetAsync(GlobalConstants.CACHE_KEY_PRODUCT_MODELS, () => allProducts)).Wait();
-                }
-            }).Wait();
+                var dictAllProducts = allProducts.ToDictionary(item => item.Id);
+                _cacher.SetAsync(GlobalConstants.CACHE_KEY_PRODUCT_MODELS, () => dictAllProducts)
+                    .ConfigureAwait(false)
+                    .GetAwaiter()
+                    .GetResult();
+            }
         }
     }
 }

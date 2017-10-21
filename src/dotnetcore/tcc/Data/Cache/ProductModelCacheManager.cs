@@ -27,7 +27,10 @@ namespace Data.Cache
 
         public void UpdateCache()
         {
-            Task.Run(UpdateCacheAsync).Wait();
+            UpdateCacheAsync()
+                .ConfigureAwait(false)
+                .GetAwaiter()
+                .GetResult();
         }
 
         public async Task UpdateCacheAsync()
