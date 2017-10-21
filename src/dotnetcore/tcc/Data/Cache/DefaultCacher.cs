@@ -4,6 +4,7 @@ using System;
 using Core.Cache;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
+using System.Collections.Generic;
 
 namespace Data.Cache
 {
@@ -32,7 +33,7 @@ namespace Data.Cache
         public async Task SetAsync<T>(string key, Func<T> itemFactory, int intervalInMinutes = 20)
         {
             var item = itemFactory.Invoke();
-            if (item == null)
+            if (EqualityComparer<T>.Default.Equals(item, default(T)))
                 return;
             var bytes = ObjectToByteArray(item);
             await _distributedCache.SetAsync(key, bytes, new DistributedCacheEntryOptions
@@ -46,15 +47,11 @@ namespace Data.Cache
             lock (_lockObject)
             {
                 var cacheItem = default(T);
-                Task.Run(() => GetAsync<T>(key)).ContinueWith(task =>
+                var result = GetAsync<T>(key).ConfigureAwait(false).GetAwaiter().GetResult();
+                if (!EqualityComparer<T>.Default.Equals(result, default(T)))
                 {
-                    cacheItem = task.Result;
-                    if (System.Collections.Generic.EqualityComparer<T>.Default.Equals(cacheItem, default(T)))
-                    {
-                        Task.Run(() => SetAsync<T>(key, itemFactory, intervalInMinutes)).Wait();
-                    }
-                }).Wait();
-                
+                    SetAsync(key, itemFactory, intervalInMinutes).ConfigureAwait(false).GetAwaiter().GetResult();
+                }
                 return cacheItem;
             }
         }
@@ -75,7 +72,7 @@ namespace Data.Cache
 
         private static byte[] ObjectToByteArray<T>(T item)
         {
-            if (item == null)
+            if (EqualityComparer<T>.Default.Equals(item, default(T)))
                 return null;
 
             var binaryFormatter = new BinaryFormatter();

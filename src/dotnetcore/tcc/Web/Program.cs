@@ -6,7 +6,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Data.Initializer;
 using Core.Cache;
 using Core.Constants;
-using System.Threading.Tasks;
 
 namespace Web
 {
@@ -34,7 +33,10 @@ namespace Web
                     databaseInitializer.Initialize();
 
                     var cacher = services.GetRequiredService<ICacher>();
-                    Task.Run(() => cacher.RemoveAsync(GlobalConstants.CACHE_KEY_MAX_LAST_UPDATED_TIME)).Wait();
+                    cacher.RemoveAsync(GlobalConstants.CACHE_KEY_MAX_LAST_UPDATED_TIME)
+                        .ConfigureAwait(false)
+                        .GetAwaiter()
+                        .GetResult();
 
                     var cacheInitializer = services.GetRequiredService<CacheInitializer>();
                     cacheInitializer.Initialize();
